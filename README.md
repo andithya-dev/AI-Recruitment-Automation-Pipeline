@@ -1,6 +1,7 @@
 # AI-Recruitment-Automation-Pipeline
 Automated CV screening and scoring system using n8n and Gemini 2.5 Pro for unbiased talent acquisition.
 # AI-Powered Talent Screening Pipeline (v1.0)
+![n8n Workflow Canvas](Talent_Screening_Pipeline_v1.jpeg)
 
 Proyek ini adalah sebuah **Proof of Concept (PoC)** sistem otomatisasi proses rekrutmen berskala besar (Mass Hiring) menggunakan **n8n** sebagai orchestrator utama dan **Gemini 2.5 Pro** sebagai *Intelligent Qualitative Scoring Engine*. 
 
