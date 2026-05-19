@@ -1,0 +1,357 @@
+{
+  "name": "Talent_Screening_Pipeline_v1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        144
+      ],
+      "id": "dbff8cbd-8036-4303-8f71-1cef68dfe70f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'1aGRXmeGZHeiHmxitMd38K2fDF35FxtCb' in parents and trashed = false",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -384,
+        0
+      ],
+      "id": "0b1eaa70-2779-4fa4-bee5-220014184b59",
+      "name": "CV Source: Cloud Repository",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Yl8vRAfCr7czoHbB",
+          "name": "Allure Recruitment Pipeline"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -208,
+        144
+      ],
+      "id": "8a8c4c97-f142-472c-90e2-fbb0ae2702ab",
+      "name": "Document Stream Handler",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Yl8vRAfCr7czoHbB",
+          "name": "Allure Recruitment Pipeline"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "31f0542a-d043-45e5-acb5-44f270f4bb9a",
+      "name": "Intelligent Text Extraction"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "65b4abf7-b46d-4cab-a29f-773e564ed484",
+              "name": "=combined_prompt",
+              "value": "=You are an expert HR AI for an architecture firm. Your task is to evaluate candidate resumes for a 'Junior Architect' position based on the provided text. DO NOT extract or evaluate based on Name, Age, Gender, or Location. Focus ONLY on: 1. Education (Bachelor's in Architecture/Interior Design). 2. Experience (Target: minimum 2 years in design and build). 3. Software Skills (AutoCAD, SketchUp, Revit). 4. Technical skills. Be extremely objective and output the result in JSON format with exactly these fields:\n- 'Skor_Kecocokan' (Number)\n- 'Status' ('Interview' or 'Rejected')\n- 'Alasan_Singkat' (String)\n- 'Analisis_Lengkap' (String, detail penjabaran kualifikasi kandidat)\n- 'Kelebihan_Kandidat' (String, poin terkuat dari kandidat)\n\nBerikut adalah teks CV kandidat: {{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        128,
+        160
+      ],
+      "id": "484e5df2-9872-431a-a78d-3360d0e28736",
+      "name": "Metadata Normalization"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=={{ $json.combined_prompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        16
+      ],
+      "id": "72a41637-788b-49af-9956-176865a19536",
+      "name": "Qualitative Scoring Engine",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        352,
+        240
+      ],
+      "id": "b5f9699d-4312-4ba8-a864-e347007ebd77",
+      "name": "Gemini Vision Core",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NsAlITAPfrcFDaBr",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1MqvBkWkkvQvbm3gSxhe4gobXU-qiAJxg6zVmqOTkApg",
+          "mode": "list",
+          "cachedResultName": "Dashboard Seleksi AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MqvBkWkkvQvbm3gSxhe4gobXU-qiAJxg6zVmqOTkApg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MqvBkWkkvQvbm3gSxhe4gobXU-qiAJxg6zVmqOTkApg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Skor (0-100)": "={{ $json.output ? JSON.parse($json.output).Skor_Kecocokan : 0 }}",
+            "Status": "={{ $json.output ? JSON.parse($json.output).Status : \"Gagal Scan\" }}",
+            "Alasan Tolak/Lolos": "={{ $json.output ? JSON.parse($json.output).Alasan_Singkat : \"Kena Rate Limit AI, silakan scan ulang.\" }}",
+            "Analisis": "={{ $json.output ? JSON.parse($json.output).Analisis_Lengkap : \"Data kosong karena AI overload.\" }}",
+            "Kelebihan": "={{ $json.output ? JSON.parse($json.output).Kelebihan_Kandidat : \"Data kosong karena AI overload.\" }}",
+            "ID Kandidat": "={{ $('CV Source: Cloud Repository').item.json.name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID Kandidat",
+              "displayName": "ID Kandidat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skor (0-100)",
+              "displayName": "Skor (0-100)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Analisis",
+              "displayName": "Analisis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Kelebihan",
+              "displayName": "Kelebihan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Alasan Tolak/Lolos",
+              "displayName": "Alasan Tolak/Lolos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        576,
+        160
+      ],
+      "id": "b002c37b-f807-418a-b392-c9b5fefc0a69",
+      "name": "Output Reporting Dashboard",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "96z3q5DZiSllFtpo",
+          "name": "CV Automation Data"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "CV Source: Cloud Repository",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CV Source: Cloud Repository": {
+      "main": [
+        [
+          {
+            "node": "Document Stream Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Stream Handler": {
+      "main": [
+        [
+          {
+            "node": "Intelligent Text Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intelligent Text Extraction": {
+      "main": [
+        [
+          {
+            "node": "Metadata Normalization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Metadata Normalization": {
+      "main": [
+        [
+          {
+            "node": "Qualitative Scoring Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualitative Scoring Engine": {
+      "main": [
+        [
+          {
+            "node": "Output Reporting Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Vision Core": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Qualitative Scoring Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a68a18cb-9131-401a-9c89-dfe8f3465136",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "61fa0bc48bb96af4a146be2273cc3d980f1a79ee78e7d1d939cf6417710cf2f2"
+  },
+  "id": "oCS8FLZ1dQD0zlIh",
+  "tags": []
+}
