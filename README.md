@@ -3,58 +3,58 @@ Automated CV screening and scoring system using n8n and Gemini 2.5 Pro for unbia
 # AI-Powered Talent Screening Pipeline (v1.0)
 ![n8n Workflow Canvas](Talent_Screening_Pipeline_v1.jpeg)
 
-Proyek ini adalah sebuah **Proof of Concept (PoC)** sistem otomatisasi proses rekrutmen berskala besar (Mass Hiring) menggunakan **n8n** sebagai orchestrator utama dan **Gemini 2.5 Pro** sebagai *Intelligent Qualitative Scoring Engine*. 
+This project is a **Proof of Concept (PoC)** for a high-volume, automated recruitment screening system (Mass Hiring) orchestrated via **n8n** and powered by **Gemini 2.5 Pro** as the *Intelligent Qualitative Scoring Engine*. 
 
-Sistem ini dirancang untuk mereduksi waktu screening CV hingga **93%**, menekan biaya operasional hingga **99.7%**, serta menjamin proses seleksi yang **100% objektif, transparan, dan bebas dari bias manusia**.
-
----
-
-## 🚀 Arsitektur Sistem (Workflow Nodes)
-Alur data berjalan secara *end-to-end* dari hulu ke hilir dengan urutan sebagai berikut:
-1. **Execute Workflow** (Manual/Webhook trigger)
-2. **CV Source: Cloud Repository** (Mendeteksi file masuk di Google Drive)
-3. **Document Stream Handler** (Mengunduh file PDF kandidat)
-4. **Intelligent Text Extraction** (Mengekstrak teks mentah dari PDF)
-5. **Metadata Normalization** (Menyaring & membersihkan struktur data teks)
-6. **Gemini Vision Core (Gemini 2.5 Pro)** (Proses kognitif analisis kualifikasi)
-7. **Qualitative Scoring Engine** (Pemetaan data ke format JSON terstruktur)
-8. **Output Reporting Dashboard** (Penyimpanan data akhir ke Google Sheets secara real-time)
+The pipeline is strategically engineered to reduce CV screening time by **93%**, slash operational infrastructure costs by **99.7%**, and guarantee a **100% objective, transparent, and bias-free** candidate pre-selection process.
 
 ---
 
-## 🔒 Privasi Data & Anti-Bias (Nilai Jual Utama)
-Untuk memastikan kepatuhan terhadap objektivitas rekrutmen, sistem ini dikonfigurasi secara ketat pada node *Metadata Normalization* dan prompt LLM untuk **mengabaikan informasi personal** kandidat seperti:
-- Nama Lengkap
-- Umur & Tanggal Lahir
-- Jenis Kelamin (Gender)
-- Lokasi Geografis / Alamat
-
-AI murni melakukan evaluasi berbasis **Kompetensi Teknis**, kesesuaian **Pendidikan Formal**, penguasaan **Software Required**, dan relevansi **Pengalaman Kerja**.
-
----
-
-## 🛠️ Cara Menggunakan (Setup & Deployment)
-
-### Prasyarat
-- Akun [n8n](https://n8n.io/) (Self-hosted atau Cloud)
-- Google Cloud Console Account (Untuk akses Google Drive & Google Sheets API)
-- Google AI Studio API Key (Menggunakan model `Gemini 2.5 Pro`)
-
-### Langkah Instalan
-1. Clone repository ini atau unduh file `workflow.json`.
-2. Masuk ke dashboard n8n Anda.
-3. Buat workflow baru, klik menu di pojok kanan atas, lalu pilih **Import from File**.
-4. Pilih file `workflow.json` yang telah diunduh.
-5. Konfigurasikan *Credentials* untuk Google Drive, Google Sheets, dan Gemini API Key Anda.
-6. Sistem siap dijalankan secara otomatis (*Set and Forget*).
+## 🚀 System Architecture & Workflow Nodes
+The end-to-end data pipeline processes data seamlessly from ingestion to reporting in the following sequence:
+1. **Execute Workflow** (Manual or Webhook trigger initialization)
+2. **CV Source: Cloud Repository** (Automated detection of new files in Google Drive)
+3. **Document Stream Handler** (Secure downloading of candidate PDF documents)
+4. **Intelligent Text Extraction** (Extracting unstructured raw text from PDFs)
+5. **Metadata Normalization** (Filtering, structuring, and sanitizing textual data)
+6. **Gemini Vision Core (Gemini 2.5 Pro Engine)** (Cognitive evaluation of qualifications and context)
+7. **Qualitative Scoring Engine** (Mapping AI qualitative insights into structured JSON objects)
+8. **Output Reporting Dashboard** (Real-time data logging and synchronization into Google Sheets)
 
 ---
 
-## 📊 Analisis Efisiensi Biaya (Cost Scaling)
-Berdasarkan metrik kalkulasi token pada tier *Pay-as-you-go* menggunakan **Gemini 2.5 Pro**, biaya operasional sistem ini sangat efisien:
-- **Estimasi Biaya per 1 CV:** ~Rp 26,-
-- **Estimasi Biaya per 1.000 CV:** ~Rp 26.400,-
-- **Dampak Bisnis:** Menghemat puluhan jam kerja HRD per minggu dan memotong *labor cost* screening awal hingga hampir 100%.
+## 🔒 Data Privacy & Anti-Bias Framework (Core Value Proposition)
+To ensure strict compliance with modern HR objectivity standards, this system is tightly configured at the *Metadata Normalization* node and within the LLM prompt layer to **completely ignore personally identifiable information (PII)**, such as:
+- Full Name
+- Age & Date of Birth
+- Gender
+- Geographical Location / Residential Address
+
+The AI engine evaluates candidates strictly based on **Technical Competencies**, **Formal Education** alignment, mastery of **Required Software/Tools**, and the relevance of their **Professional Experience**.
 
 ---
-**Dirancang dan Dikembangkan oleh:** *Muhammad Andithya Mirza Yaldi*
+
+## 🛠️ Setup & Deployment Guide
+
+### Prerequisites
+- Active [n8n](https://n8n.io/) instance (Self-hosted or Cloud)
+- Google Cloud Console Project (with Google Drive & Google Sheets API enabled)
+- Google AI Studio API Key (with access to the `Gemini 2.5 Pro` model)
+
+### Installation Steps
+1. Clone this repository or download the `workflow.json` file.
+2. Log in to your n8n dashboard.
+3. Create a new workflow, click the menu icon in the top-right corner, and select **Import from File**.
+4. Upload the downloaded `workflow.json` file.
+5. Configure your respective *Credentials* for Google Drive, Google Sheets, and the Gemini API Key.
+6. Toggle the workflow to **Active** for a fully automated, *set-and-forget* deployment.
+
+---
+
+## 📊 Cost Efficiency & Scaling Analysis
+Based on token calculation metrics under the *Pay-as-you-go* tier using **Gemini 2.5 Pro**, the operational cost of this pipeline scales exceptionally well:
+- **Estimated Cost per 1 CV:** ~IDR 26
+- **Estimated Cost per 1,000 CVs:** ~IDR 26,400
+- **Business Impact:** Reclaims dozens of HR labor hours per week and virtually eliminates the high operational labor costs typically associated with initial resume screening phases.
+
+---
+**Designed and Developed by:** *Muhammad Andithya Mirza Yaldi*
