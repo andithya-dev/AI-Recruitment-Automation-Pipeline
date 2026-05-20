@@ -16,7 +16,7 @@
       "parameters": {
         "resource": "fileFolder",
         "searchMethod": "query",
-        "queryString": "'1aGRXmeGZHeiHmxitMd38K2fDF35FxtCb' in parents and trashed = false",
+        "queryString": "='YOUR_GOOGLE_DRIVE_FOLDER_ID' in parents and trashed = false",
         "returnAll": true,
         "filter": {},
         "options": {}
@@ -31,48 +31,45 @@
       "name": "CV Source: Cloud Repository",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "Yl8vRAfCr7czoHbB",
-          "name": "Allure Recruitment Pipeline"
+          "id": "placeholder-credential-id",
+          "name": "Google Drive account"
         }
       }
     },
     {
       "parameters": {
         "operation": "download",
-        "fileId": {
-          "__rl": true,
-          "value": "={{ $json.id }}",
-          "mode": "id"
-        },
+        "fileId": "={{ $json.id }}",
         "options": {}
       },
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        -208,
-        144
+        -160,
+        0
       ],
-      "id": "8a8c4c97-f142-472c-90e2-fbb0ae2702ab",
+      "id": "a90bbfe5-f938-47fb-86bf-3ec2fe654e83",
       "name": "Document Stream Handler",
       "credentials": {
         "googleDriveOAuth2Api": {
-          "id": "Yl8vRAfCr7czoHbB",
-          "name": "Allure Recruitment Pipeline"
+          "id": "placeholder-credential-id",
+          "name": "Google Drive account"
         }
       }
     },
     {
       "parameters": {
-        "operation": "pdf",
+        "operation": "extractText",
+        "binaryPropertyName": "data",
         "options": {}
       },
-      "type": "n8n-nodes-base.extractFromFile",
-      "typeVersion": 1.1,
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
       "position": [
-        -32,
+        64,
         0
       ],
-      "id": "31f0542a-d043-45e5-acb5-44f270f4bb9a",
+      "id": "df656a81-dcd6-4bba-9bfb-0fa7f13b30bd",
       "name": "Intelligent Text Extraction"
     },
     {
@@ -80,9 +77,9 @@
         "assignments": {
           "assignments": [
             {
-              "id": "65b4abf7-b46d-4cab-a29f-773e564ed484",
-              "name": "=combined_prompt",
-              "value": "=You are an expert HR AI for an architecture firm. Your task is to evaluate candidate resumes for a 'Junior Architect' position based on the provided text. DO NOT extract or evaluate based on Name, Age, Gender, or Location. Focus ONLY on: 1. Education (Bachelor's in Architecture/Interior Design). 2. Experience (Target: minimum 2 years in design and build). 3. Software Skills (AutoCAD, SketchUp, Revit). 4. Technical skills. Be extremely objective and output the result in JSON format with exactly these fields:\n- 'Skor_Kecocokan' (Number)\n- 'Status' ('Interview' or 'Rejected')\n- 'Alasan_Singkat' (String)\n- 'Analisis_Lengkap' (String, detail penjabaran kualifikasi kandidat)\n- 'Kelebihan_Kandidat' (String, poin terkuat dari kandidat)\n\nBerikut adalah teks CV kandidat: {{ $json.text }}",
+              "id": "c16ba2be-b1e7-49c0-9ff1-ee1d828d5fe7",
+              "name": "raw_cv_text",
+              "value": "={{ $json.text.replace(/[\\r\\n]+/g, ' ').trim() }}",
               "type": "string"
             }
           ]
@@ -92,174 +89,85 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        128,
-        160
+        288,
+        0
       ],
-      "id": "484e5df2-9872-431a-a78d-3360d0e28736",
+      "id": "672bc0e5-7b0f-48db-829d-43402f068804",
       "name": "Metadata Normalization"
     },
     {
       "parameters": {
-        "promptType": "define",
-        "text": "=={{ $json.combined_prompt }}",
+        "jsonOutput": "{\n  \"technical_skills\": \"array of strings\",\n  \"education_alignment\": \"string (High/Medium/Low)\",\n  \"software_mastery\": \"array of strings\",\n  \"years_of_experience\": \"number\",\n  \"qualitative_score\": \"number (0-100)\",\n  \"hiring_recommendation\": \"string (Proceed/Hold/Reject)\",\n  \"justification_summary\": \"string\"\n}",
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        288,
-        16
-      ],
-      "id": "72a41637-788b-49af-9956-176865a19536",
-      "name": "Qualitative Scoring Engine",
-      "retryOnFail": true,
-      "waitBetweenTries": 5000,
-      "maxTries": 5,
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-2.5-pro",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "type": "n8n-nodes-base.googleAdvancedModels",
       "typeVersion": 1,
       "position": [
-        352,
-        240
+        512,
+        0
       ],
-      "id": "b5f9699d-4312-4ba8-a864-e347007ebd77",
-      "name": "Gemini Vision Core",
-      "retryOnFail": true,
-      "maxTries": 5,
-      "waitBetweenTries": 5000,
-      "credentials": {
-        "googlePalmApi": {
-          "id": "NsAlITAPfrcFDaBr",
-          "name": "Google Gemini(PaLM) Api account"
-        }
-      }
+      "id": "e6f4772b-8877-4566-ae4f-cb6f966144e1",
+      "name": "Qualitative Scoring Engine"
     },
     {
       "parameters": {
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1MqvBkWkkvQvbm3gSxhe4gobXU-qiAJxg6zVmqOTkApg",
-          "mode": "list",
-          "cachedResultName": "Dashboard Seleksi AI",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MqvBkWkkvQvbm3gSxhe4gobXU-qiAJxg6zVmqOTkApg/edit?usp=drivesdk"
+          "value": "YOUR_GOOGLE_SHEETS_ID",
+          "mode": "id"
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MqvBkWkkvQvbm3gSxhe4gobXU-qiAJxg6zVmqOTkApg/edit#gid=0"
+          "value": "YOUR_SHEET_TAB_NAME",
+          "mode": "list"
         },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Skor (0-100)": "={{ $json.output ? JSON.parse($json.output).Skor_Kecocokan : 0 }}",
-            "Status": "={{ $json.output ? JSON.parse($json.output).Status : \"Gagal Scan\" }}",
-            "Alasan Tolak/Lolos": "={{ $json.output ? JSON.parse($json.output).Alasan_Singkat : \"Kena Rate Limit AI, silakan scan ulang.\" }}",
-            "Analisis": "={{ $json.output ? JSON.parse($json.output).Analisis_Lengkap : \"Data kosong karena AI overload.\" }}",
-            "Kelebihan": "={{ $json.output ? JSON.parse($json.output).Kelebihan_Kandidat : \"Data kosong karena AI overload.\" }}",
-            "ID Kandidat": "={{ $('CV Source: Cloud Repository').item.json.name }}"
+            "Technical_Skills": "={{ $json.technical_skills.join(', ') }}",
+            "Education_Alignment": "={{ $json.education_alignment }}",
+            "Software_Mastery": "={{ $json.software_mastery.join(', ') }}",
+            "Years_of_Experience": "={{ $json.years_of_experience }}",
+            "Qualitative_Score": "={{ $json.qualitative_score }}",
+            "Recommendation": "={{ $json.hiring_recommendation }}",
+            "Justification": "={{ $json.justification_summary }}"
           },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "ID Kandidat",
-              "displayName": "ID Kandidat",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "Skor (0-100)",
-              "displayName": "Skor (0-100)",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "Status",
-              "displayName": "Status",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "Analisis",
-              "displayName": "Analisis",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "Kelebihan",
-              "displayName": "Kelebihan",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "Alasan Tolak/Lolos",
-              "displayName": "Alasan Tolak/Lolos",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": false
-            },
-            {
-              "id": "output",
-              "displayName": "output",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true,
-              "removed": true
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
+          "schema": []
         },
         "options": {}
       },
       "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
+      "typeVersion": 4.5,
       "position": [
-        576,
-        160
+        736,
+        0
       ],
-      "id": "b002c37b-f807-418a-b392-c9b5fefc0a69",
+      "id": "fc129b82-628d-4a11-857e-347ffefb3b19",
       "name": "Output Reporting Dashboard",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "96z3q5DZiSllFtpo",
-          "name": "CV Automation Data"
+          "id": "placeholder-credential-id",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gemini-2.5-pro",
+        "prompt": "Anda adalah mesin skoring CV AI tingkat korporat yang objektif. Tugas Anda adalah mengevaluasi teks mentah CV berikut tanpa memedulikan nama, gender, umur, atau lokasi kandidat (Anti-Bias Framework).\\n\\nEvaluasilah kompetensi teknis, kecocokan latar belakang pendidikan, penguasaan software, dan akumulasi pengalaman kerja mereka.\\n\\nRaw CV Text: {{ $('Metadata Normalization').item.json.raw_cv_text }}",
+        "options": {
+          "temperature": 0.15
         }
       },
-      "onError": "continueRegularOutput"
+      "type": "n8n-nodes-base.gemini",
+      "typeVersion": 1,
+      "position": [
+        512,
+        160
+      ],
+      "id": "b328cfbd-2a21-4f11-884d-2a81903bc7e0",
+      "name": "Gemini Vision Core"
     }
   ],
   "pinData": {},
@@ -347,11 +255,8 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "a68a18cb-9131-401a-9c89-dfe8f3465136",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "61fa0bc48bb96af4a146be2273cc3d980f1a79ee78e7d1d939cf6417710cf2f2"
+    "templateCredsSetupCompleted": true
   },
-  "id": "oCS8FLZ1dQD0zlIh",
   "tags": []
 }
